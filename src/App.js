@@ -1,23 +1,47 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from "react"
 import './App.css';
+import ReactPaginate from "react-paginate"
+import Data from "./components/Data";
 
 function App() {
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [pageNumber, setPageNumber] = useState(1)
+
+
+  const handlePageClick = (data) => {
+    setPageNumber(data.selected  + 1)
+  }
+
+  useEffect(() => {
+    const getData = async () => {
+      const res = await fetch(`https://swapi.dev/api/planets/?page=${pageNumber}`)
+      const data = await res.json();
+      setData(data.results)
+      setLoading(true)
+    }
+    getData()
+    setLoading(false)
+  }, [pageNumber])
+
+  console.log(data)
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Data Set</h1>
+      <Data datas={data} pageNumber={pageNumber} loading={loading}/>
+      {!loading && <h3>Loading......</h3>}
+      <ReactPaginate 
+        previousLabel = {"Previous"}
+        nextLabel = {"Next"}
+        breakLabel = {"..."}
+        pageCount = {6}
+        marginPagesDisplayed = {2}
+        pageRangeDisplayed={1}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"}
+        subContainerClassName={"pages pagination"}
+        activeClassName={"active"}
+      />
     </div>
   );
 }
